@@ -1,0 +1,18 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block content %}
+	{% set blog_image = page.media.images|first.contrast(-7).brightness(0).colorize(0,0,5) %}
+
+	{% if blog_image %}
+	<div class="flush-top blog-header blog-header-image" style="background-image: url({{ blog_image.url }});">
+	{% else %}
+	<div class="blog-header">
+	{% endif %}
+		{{ page.content }}
+	</div>
+
+		{% if config.plugins.breadcrumbs.enabled %}
+			{% include 'partials/breadcrumbs.html.twig' %}
+		{% endif %}
+
+{% endblock %}

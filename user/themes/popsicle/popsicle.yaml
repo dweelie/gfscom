@@ -1,0 +1,21 @@
+enabled: true
+default_lang: en
+description: All the latest news and information about Gravity Free Summer.
+author: H
+title: gravity free summer
+title_header: false
+home_profile: true
+infinite_scroll: false
+analytics: UA-YOURCODE
+social:
+    twitter: @infinitybeach
+    facebook: gravityfreesummer
+
+streams:
+ schemes:
+   theme:
+     type: ReadOnlyStream
+     prefixes:
+       '':
+         - user/themes/popsicle
+         - user/themes/cacti

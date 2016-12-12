@@ -1,0 +1,31 @@
+title: Gravity Free Summer
+
+author:
+  name:
+  email: henry@gravityfreesummer.com
+
+blog:
+  route: ''
+
+metadata:
+    description: All the latest news and information about Gravity Free Summer
+
+taxonomies: [category,tag,month]
+
+summary:
+  enabled: true                             # enable or disable summary of page
+  format: short                             # long = summary delimiter will be ignored; short = use the first occurrence of delimiter or size
+  size: 600                                 # Maximum length of summary (characters)
+  delimiter: ===
+
+menu:
+  - text: discog
+    url: http://gravityfreesummer.bandcamp.com
+  - icon: twitter
+    url: http://twitter.com/infinitybeach
+  - icon: facebook
+    url: http://facebook.com/gravityfreesummer
+  - icon: soundcloud
+    url: http://soundcloud.com/gravityfreesummer
+  - icon: youtube
+    url: http://youtube.com/gravitysummer
