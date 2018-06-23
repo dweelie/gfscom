@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -27,8 +27,9 @@ interface RenderableInterface
      * @param string $title
      * @param string $alt
      * @param string $class
+     * @param string $id
      * @param bool $reset
      * @return string
      */
-    public function parsedownElement($title = null, $alt = null, $class = null, $reset = true);
+    public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true);
 }

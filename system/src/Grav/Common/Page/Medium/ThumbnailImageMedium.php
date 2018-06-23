@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -34,15 +34,16 @@ class ThumbnailImageMedium extends ImageMedium
     /**
      * Get an element (is array) that can be rendered by the Parsedown engine
      *
-     * @param  string  $title
-     * @param  string  $alt
-     * @param  string  $class
+     * @param  string $title
+     * @param  string $alt
+     * @param  string $class
+     * @param  string $id
      * @param  boolean $reset
      * @return array
      */
-    public function parsedownElement($title = null, $alt = null, $class = null, $reset = true)
+    public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true)
     {
-        return $this->bubble('parsedownElement', [$title, $alt, $class, $reset]);
+        return $this->bubble('parsedownElement', [$title, $alt, $class, $id, $reset]);
     }
 
     /**
@@ -51,12 +52,13 @@ class ThumbnailImageMedium extends ImageMedium
      * @param string $title
      * @param string $alt
      * @param string $class
+     * @param string $id
      * @param bool $reset
      * @return string
      */
-    public function html($title = null, $alt = null, $class = null, $reset = true)
+    public function html($title = null, $alt = null, $class = null, $id = null, $reset = true)
     {
-        return $this->bubble('html', [$title, $alt, $class, $reset]);
+        return $this->bubble('html', [$title, $alt, $class, $id, $reset]);
     }
 
     /**
@@ -121,8 +123,8 @@ class ThumbnailImageMedium extends ImageMedium
     {
         if (!$testLinked || $this->linked) {
             return $this->parent ? call_user_func_array(array($this->parent, $method), $arguments) : $this;
-        } else {
-            return call_user_func_array(array($this, 'parent::' . $method), $arguments);
         }
+
+        return call_user_func_array(array($this, 'parent::' . $method), $arguments);
     }
 }

@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Config
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -17,6 +17,8 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Setup extends Data
 {
+    public static $environment;
+
     protected $streams = [
         'system' => [
             'type' => 'ReadOnlyStream',
@@ -26,6 +28,7 @@ class Setup extends Data
         ],
         'user' => [
             'type' => 'ReadOnlyStream',
+            'force' => true,
             'prefixes' => [
                 '' => ['user'],
             ]
@@ -78,6 +81,7 @@ class Setup extends Data
         ],
         'cache' => [
             'type' => 'Stream',
+            'force' => true,
             'prefixes' => [
                 '' => ['cache'],
                 'images' => ['images']
@@ -85,14 +89,23 @@ class Setup extends Data
         ],
         'log' => [
             'type' => 'Stream',
+            'force' => true,
             'prefixes' => [
                 '' => ['logs']
             ]
         ],
         'backup' => [
             'type' => 'Stream',
+            'force' => true,
             'prefixes' => [
                 '' => ['backup']
+            ]
+        ],
+        'tmp' => [
+            'type' => 'Stream',
+            'force' => true,
+            'prefixes' => [
+                '' => ['tmp']
             ]
         ],
         'image' => [
@@ -120,11 +133,12 @@ class Setup extends Data
      */
     public function __construct($container)
     {
-        $environment = $container['uri']->environment() ?: 'localhost';
+        $environment = null !== static::$environment ? static::$environment : ($container['uri']->environment() ?: 'localhost');
 
         // Pre-load setup.php which contains our initial configuration.
         // Configuration may contain dynamic parts, which is why we need to always load it.
-        $file = GRAV_ROOT . '/setup.php';
+        // If "GRAVE_SETUP_PATH" has been defined, use it, otherwise use defaults.
+        $file = defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH :  GRAV_ROOT . '/setup.php';
         $setup = is_file($file) ? (array) include $file : [];
 
         // Add default streams defined in beginning of the class.
@@ -137,12 +151,14 @@ class Setup extends Data
         parent::__construct($setup);
 
         // Set up environment.
-        $this->def('environment', $environment);
-        $this->def('streams.schemes.environment.prefixes', ['' => ["user://{$this->environment}"]]);
+        $this->def('environment', $environment ?: 'cli');
+        $this->def('streams.schemes.environment.prefixes', ['' => $environment ? ["user://{$this->environment}"] : []]);
     }
 
     /**
      * @return $this
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function init()
     {
@@ -162,7 +178,7 @@ class Setup extends Data
             // Update streams.
             foreach (array_reverse($files) as $path) {
                 $file = CompiledYamlFile::instance($path);
-                $content = $file->content();
+                $content = (array)$file->content();
                 if (!empty($content['schemes'])) {
                     $this->items['streams']['schemes'] = $content['schemes'] + $this->items['streams']['schemes'];
                 }
@@ -183,6 +199,7 @@ class Setup extends Data
      * Initialize resource locator by using the configuration.
      *
      * @param UniformResourceLocator $locator
+     * @throws \BadMethodCallException
      */
     public function initializeLocator(UniformResourceLocator $locator)
     {
@@ -194,9 +211,13 @@ class Setup extends Data
             if (isset($config['paths'])) {
                 $locator->addPath($scheme, '', $config['paths']);
             }
+
+            $override = isset($config['override']) ? $config['override'] : false;
+            $force = isset($config['force']) ? $config['force'] : false;
+
             if (isset($config['prefixes'])) {
-                foreach ($config['prefixes'] as $prefix => $paths) {
-                    $locator->addPath($scheme, $prefix, $paths);
+                foreach ((array)$config['prefixes'] as $prefix => $paths) {
+                    $locator->addPath($scheme, $prefix, $paths, $override, $force);
                 }
             }
         }
@@ -212,7 +233,7 @@ class Setup extends Data
         $schemes = [];
         foreach ((array) $this->get('streams.schemes') as $scheme => $config) {
             $type = !empty($config['type']) ? $config['type'] : 'ReadOnlyStream';
-            if ($type[0] != '\\') {
+            if ($type[0] !== '\\') {
                 $type = '\\RocketTheme\\Toolbox\\StreamWrapper\\' . $type;
             }
 
@@ -225,6 +246,8 @@ class Setup extends Data
     /**
      * @param UniformResourceLocator $locator
      * @throws \InvalidArgumentException
+     * @throws \BadMethodCallException
+     * @throws \RuntimeException
      */
     protected function check(UniformResourceLocator $locator)
     {

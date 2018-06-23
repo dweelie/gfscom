@@ -102,7 +102,7 @@ class UniformResourceLocator implements ResourceLocatorInterface
         foreach((array) $paths as $path) {
             if (is_array($path)) {
                 // Support stream lookup in ['theme', 'path/to'] format.
-                if (count($path) != 2) {
+                if (count($path) != 2 || !is_string($path[0]) || !is_string($path[1])) {
                     throw new \BadMethodCallException('Invalid stream path given.');
                 }
                 $list[] = $path;
@@ -176,12 +176,12 @@ class UniformResourceLocator implements ResourceLocatorInterface
     /**
      * Return all scheme lookup paths.
      *
-     * @param $scheme
+     * @param string $scheme
      * @return array
      */
-    public function getPaths($scheme)
+    public function getPaths($scheme = null)
     {
-        return isset($this->schemes[$scheme]) ? $this->schemes[$scheme] : [];
+        return !$scheme ? $this->schemes : (isset($this->schemes[$scheme]) ? $this->schemes[$scheme] : []);
     }
 
     /**
